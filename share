@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# SHARE: share the file on the server with the information below
+#
+
+usage="Usage: $(basename "$0") [-h] filename -- share the filename on the server with information stored in ~/bin/share"
+
+###########################
+###### configuration ######
+SSHHOST=salexander.org
+SSHPATH=~/public_html/salexander.org/public/share
+WWWPATH=http://salexander.org/share
+NCHAR=16
+###########################
+
+
+
+if [ "$1" == '--help' ] || [ "$1" == '-h' ]
+then
+  echo $usage
+elif [ -e "$1" ]
+then
+  b=$(basename $1)
+  # create a random string
+  r=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
+  # make the new folder for the shared document
+  ssh $SSHHOST "mkdir $SSHPATH/$r" > /dev/null 2>&1
+  # copy the file to the server
+  scp $1 $SSHHOST:$SSHPATH/$r/$b
+  # print the file location
+  echo "$WWWPATH/$r/$b"
+else
+  echo "Not a file: $1"
+  echo $usage
+fi
+
